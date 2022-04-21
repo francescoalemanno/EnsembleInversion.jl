@@ -3,7 +3,7 @@
 exports `EKI` function, for further help type `?EKI` in the REPL.
 """
 module EnsembleInversion
-using LinearAlgebra, Statistics
+using LinearAlgebra, Statistics, Random
 """
     EKI(G::Function, x_ensemble::Matrix{T}, y_target=zero(T), alpha=T(1e-8)*I)
 solve model `y = G(x)` according to:
@@ -29,6 +29,15 @@ function EKI(G::F, x_ensemble::AbstractMatrix{T}, y_target=zero(T), alpha=T(1e-8
     dP = x_ensemble.-mx_ensemble
     A = ((dP*dO')./J)*inv((dO*dO')./J + alpha)
     x_ensemble .+ A*(y_target.-y_observed)
+end
+
+function lhs(d,N,rng = Random.GLOBAL_RNG)
+    rg = LinRange(0+1/(2N),1-1/(2N),N)
+    S = zeros(d,N)
+    for i in 1:d
+        S[i,:] .= shuffle(rng,rg)
+    end
+    S
 end
 
 export EKI
